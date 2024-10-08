@@ -29,6 +29,20 @@ class LinalgBatchMatmul(DialectOp):
 
 
 @dataclass
+class LinalgBatchMatmulTransposeB(DialectOp):
+    a_id: mast.SsaId
+    b_id: mast.SsaId
+    a_type: mast.Type
+    b_type: mast.Type
+    c_id: mast.SsaId
+    c_type: mast.Type
+
+    _syntax_ = [("linalg.batch_matmul_transpose_b"
+                 " ins ( {a_id.ssa_id} , {b_id.ssa_id} : {a_type.type} , {b_type.type} )"
+                 " outs ( {c_id.ssa_id} : {c_type.type} )")]
+
+
+@dataclass
 class LinalgConvW(DialectOp):
     in_id: mast.SsaId
     filter_id: mast.SsaId
