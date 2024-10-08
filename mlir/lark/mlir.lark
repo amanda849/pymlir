@@ -58,6 +58,7 @@ ssa_use_list : ssa_use ("," ssa_use)*
 // Standard types
 none_type : "none"
 !float_type : "f16" | "bf16" | "f32" | "f64"
+tensor_float_type : "tf32"
 index_type : "index"
 inttype_width: /[1-9][0-9]*/  // Sized integers like i1, i4, i8, i16, i32.
 signed_integer_type : "si" inttype_width
@@ -98,11 +99,11 @@ pretty_dialect_item_body : "<" pretty_dialect_item_contents ("," pretty_dialect_
                               | type
 
 // NOTE: "pymlir_dialect_types" is defined externally by pyMLIR
-dialect_type : "!" (pymlir_dialect_types | opaque_dialect_item | pretty_dialect_item)
+dialect_type : "!" pymlir_dialect_types
 
 // Final type definition
-standard_type     : complex_type | float_type | function_type | llvm_function_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type
-non_function_type : type_alias | complex_type | float_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type | dialect_type
+standard_type     : complex_type | float_type | tensor_float_type | function_type | llvm_function_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type
+non_function_type : type_alias | complex_type | float_type | tensor_float_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type | dialect_type
 type              : type_alias | dialect_type | standard_type
 
 // Uses of types

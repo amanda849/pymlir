@@ -133,6 +133,12 @@ class FloatType(Type):
 
 
 @dataclass
+class TensorFloatType(Type):
+    def dump(self, indent: int = 0) -> str:
+        return 'tf32'
+
+
+@dataclass
 class IndexType(Type):
     def dump(self, indent: int = 0) -> str:
         return 'index'

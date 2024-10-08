@@ -64,6 +64,7 @@ class TreeToMlir(Transformer):
     F32 = lambda self, tok: astnodes.FloatTypeEnum("f32")
     F64 = lambda self, tok: astnodes.FloatTypeEnum("f64")
     float_type = lambda self, tok: astnodes.FloatType(astnodes.FloatTypeEnum(tok[0].value))
+    tensor_float_type = astnodes.TensorFloatType.from_lark
     index_type = astnodes.IndexType.from_lark
     signed_integer_type = astnodes.SignedIntegerType.from_lark
     unsigned_integer_type = astnodes.UnsignedIntegerType.from_lark
