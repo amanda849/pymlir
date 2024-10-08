@@ -13,27 +13,27 @@ SsaUse = Union[mast.SsaId, Literal]
 @dataclass
 class CallIndirectOperation(DialectOp):
     func: mast.SymbolRefId
-    type: mast.FunctionType
+    func_type: mast.FunctionType
     args: Optional[List[SsaUse]] = None
     argtypes: Optional[List[mast.Type]] = None
-    _syntax_ = ['func.call_indirect {func.symbol_ref_id} () : {type.function_type}',
-                'func.call_indirect {func.symbol_ref_id} ( {args.ssa_use_list} ) : {type.function_type}']
+    _syntax_ = ['func.call_indirect {func.symbol_ref_id} () : {func_type.function_type}',
+                'func.call_indirect {func.symbol_ref_id} ( {args.ssa_use_list} ) : {func_type.function_type}']
 
 
 @dataclass
 class CallOperation(DialectOp):
     func: mast.SymbolRefId
-    type: mast.FunctionType
+    func_type: mast.FunctionType
     args: Optional[List[SsaUse]] = None
     argtypes: Optional[List[mast.Type]] = None
-    _syntax_ = ['func.call {func.symbol_ref_id} () : {type.function_type}',
-                'func.call {func.symbol_ref_id} ( {args.ssa_use_list} ) : {argtypes.function_type}']
+    _syntax_ = ['func.call {func.symbol_ref_id} () : {func_type.function_type}',
+                'func.call {func.symbol_ref_id} ( {args.ssa_use_list} ) : {func_type.function_type}']
 
 @dataclass
 class ConstantOperation(DialectOp):
     value: mast.SymbolRefId
-    type: mast.Type
-    _syntax_ = ['func.constant {value.symbol_ref_id} : {type.type}']
+    val_type: mast.Type
+    _syntax_ = ['func.constant {value.symbol_ref_id} : {val_typw.type}']
 
 # Note: The 'func.func' operation is defined as 'function' in mlir.lark.
 

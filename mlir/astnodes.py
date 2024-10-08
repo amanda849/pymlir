@@ -133,6 +133,12 @@ class FloatType(Type):
 
 
 @dataclass
+class TensorFloatType(Type):
+    def dump(self, indent: int = 0) -> str:
+        return 'tf32'
+
+
+@dataclass
 class IndexType(Type):
     def dump(self, indent: int = 0) -> str:
         return 'index'
@@ -718,6 +724,16 @@ class NamedArgument(Node):
         if self.attributes:
             result += ' %s' % dump_or_value(self.attributes, indent)
         return result
+
+
+@dataclass
+class ArgumentAssignment(Node):
+    name: SsaId
+    value: SsaId
+
+    def dump(self, indent: int = 0) -> str:
+        return '%s = %s' % (dump_or_value(self.name, indent),
+                             dump_or_value(self.value, indent))
 
 
 @dataclass

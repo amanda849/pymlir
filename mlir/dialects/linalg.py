@@ -29,6 +29,20 @@ class LinalgBatchMatmul(DialectOp):
 
 
 @dataclass
+class LinalgBatchMatmulTransposeB(DialectOp):
+    a_id: mast.SsaId
+    b_id: mast.SsaId
+    a_type: mast.Type
+    b_type: mast.Type
+    c_id: mast.SsaId
+    c_type: mast.Type
+
+    _syntax_ = [("linalg.batch_matmul_transpose_b"
+                 " ins ( {a_id.ssa_id} , {b_id.ssa_id} : {a_type.type} , {b_type.type} )"
+                 " outs ( {c_id.ssa_id} : {c_type.type} )")]
+
+
+@dataclass
 class LinalgConvW(DialectOp):
     in_id: mast.SsaId
     filter_id: mast.SsaId
@@ -139,6 +153,35 @@ class LinalgFill(DialectOp):
                  " outs( {out_id.ssa_id} : {out_type.type} )"
                  " -> {res_type.type}")]
 
+
+@dataclass
+class FillRng2DOp(DialectOp):
+    min_id: mast.SsaId
+    min_type: mast.Type
+    max_id: mast.SsaId
+    max_type: mast.Type
+    seed_id: mast.SsaId
+    seed_type: mast.Type
+    out_id: mast.SsaId
+    out_type: mast.Type
+    res_type: Optional[mast.Type] = None
+    attr: Optional[mast.Attribute] = None
+
+    _syntax_ = [("linalg.fill_rng_2d"
+                 " ins ( {min_id.ssa_id} , {max_id.ssa_id} , {seed_id.ssa_id} : {min_type.type} , {max_type.type} , {seed_type.type} )"
+                 " outs ( {out_id.ssa_id} : {out_type.type} )"),
+                ("linalg.fill_rng_2d"
+                 " ins ( {min_id.ssa_id} , {max_id.ssa_id} , {seed_id.ssa_id} : {min_type.type} , {max_type.type} , {seed_type.type} )"
+                 " outs ( {out_id.ssa_id} : {out_type.type} )"
+                 " {attr.attribute_value}"),
+                ("linalg.fill_rng_2d"
+                 " ins ( {min_id.ssa_id} , {max_id.ssa_id} , {seed_id.ssa_id} : {min_type.type} , {max_type.type} , {seed_type.type} )"
+                 " outs ( {out_id.ssa_id} : {out_type.type} ) -> {res_type.type}"),
+                ("linalg.fill_rng_2d"
+                 " ins ( {min_id.ssa_id} , {max_id.ssa_id} , {seed_id.ssa_id} : {min_type.type} , {max_type.type} , {seed_type.type} )"
+                 " outs ( {out_id.ssa_id} : {out_type.type} )"
+                 " {attr.attribute_value} -> {res_type.type}")]
+                 
 
 @dataclass
 class LinalgGeneric(DialectOp):
@@ -321,6 +364,20 @@ class LinalgMatvec(DialectOp):
     _syntax_ = [("linalg.matvec"
                  " ins( {a_id.ssa_id} , {b_id.ssa_id} : {a_type.type} , {b_type.type} )"
                  " outs( {c_id.ssa_id} : {c_type.type} )")]
+
+
+@dataclass
+class LinalgTranspose(DialectOp):
+    inarg: List[mast.SsaId]
+    in_type: List[mast.Type]
+    init: List[mast.SsaId]
+    init_type: List[mast.Type]
+    permutation: List[int]
+
+    _syntax_ = [("linalg.transpose"
+                 " ins( {inarg.ssa_id_list} : {in_type.type_list_no_parens} )"
+                 " outs( {init.ssa_id_list} : {init_type.type_list_no_parens} )"
+                 " permutation = {permutation.symbol_use_list}")]
 
 
 # Inspect current module to get all classes defined above
