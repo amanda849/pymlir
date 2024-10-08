@@ -22,6 +22,16 @@ def test_batch_matmul():
 }""")
 
 
+def test_batch_matmul_transpose_b():
+    assert_roundtrip_equivalence("""module {
+  func.func @named_ops(%a3: memref<?x?x?xf32>, %b3: memref<?x?x?xf32>, %c3: memref<?x?x?xf32>, %ta3: tensor<?x?x?xf32>, %tb3: tensor<?x?x?xf32>, %tc3: tensor<?x?x?xf32>) {
+    linalg.batch_matmul_transpose_b ins ( %a3 , %b3 : memref<?x?x?xf32> , memref<?x?x?xf32> ) outs ( %c3 : memref<?x?x?xf32> )
+    linalg.batch_matmul_transpose_b ins ( %ta3 , %tb3 : tensor<?x?x?xf32> , tensor<?x?x?xf32> ) outs ( %c3 : memref<?x?x?xf32> )
+    return
+  }
+}""")
+
+
 def test_conv():
     assert_roundtrip_equivalence("""module {
   func.func @conv1d_no_symbols(%in: memref<?xf32>, %filter: memref<?xf32>, %out: memref<?xf32>) {
