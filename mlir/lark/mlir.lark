@@ -102,8 +102,8 @@ pretty_dialect_item_body : "<" pretty_dialect_item_contents ("," pretty_dialect_
 dialect_type : "!" (pymlir_dialect_types | opaque_dialect_item | pretty_dialect_item)
 
 // Final type definition
-standard_type     : complex_type | float_type | function_type | llvm_function_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type
-non_function_type : type_alias | complex_type | float_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type | dialect_type
+standard_type     : complex_type | float_type | tensor_float_type | function_type | llvm_function_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type
+non_function_type : type_alias | complex_type | float_type | tensor_float_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type | dialect_type
 type              : type_alias | dialect_type | standard_type
 
 // Uses of types
