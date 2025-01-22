@@ -7,18 +7,18 @@ from mlir import astnodes
 class TreeToMlir(Transformer):
     ###############################################################
     # Low-level literal syntax
-    digit = lambda self, val: int(val[0])
-    digits = lambda self, val: int(val[0])
-    hex_digit = lambda self, val: str(val[0])
-    hex_digits = lambda self, val: str(val[0])
-    letter = lambda self, val: str(val[0])
-    letters = lambda self, val: str(val[0])
-    id_punct = lambda self, val: str(val[0])
-    underscore = lambda self, val: str(val[0])
-    true = lambda self, _: True
-    false = lambda self, _: False
-    id_chars = lambda self, val: str(val[0])
-    inttype_width = lambda self, val: int(val[0])
+    DIGIT = lambda self, val: int(val[0])
+    DIGITS = lambda self, val: int(val[0])
+    HEX_DIGIT = lambda self, val: str(val[0])
+    HEX_DIGITS = lambda self, val: str(val[0])
+    LETTER = lambda self, val: str(val[0])
+    LETTERS = lambda self, val: str(val[0])
+    ID_PUNCT = lambda self, val: str(val[0])
+    UNDERSCORE = lambda self, val: str(val[0])
+    TRUE = lambda self, _: True
+    FALSE = lambda self, _: False
+    ID_CHARS = lambda self, val: str(val[0])
+    INTTYPE_WIDTH = lambda self, val: int(val[0])
     dimension = astnodes.Dimension.from_lark
 
     # Literals
