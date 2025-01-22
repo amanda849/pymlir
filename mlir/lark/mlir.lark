@@ -2,22 +2,22 @@
 
 // ----------------------------------------------------------------------
 // Low-level literal syntax
-DIGIT      : /[0-9]/
-DIGITS     : /[0-9]+/
-HEX_DIGIT  : /[0-9a-fA-F]/
-HEX_DIGITS : /[0-9a-fA-F]+/
-LETTER     : /[a-zA-Z]/
-LETTERS    : /[a-zA-Z]+/
-ID_PUNCT   : /[$._-]/
-UNDERSCORE : /[_]/
-TRUE       : "true"
-FALSE      : "false"
+digit      : /[0-9]/
+digits     : /[0-9]+/
+hex_digit  : /[0-9a-fA-F]/
+hex_digits : /[0-9a-fA-F]+/
+letter     : /[a-zA-Z]/
+letters    : /[a-zA-Z]+/
+id_punct   : /[$._-]/
+underscore : /[_]/
+true       : "true"
+false      : "false"
 
-ID_CHARS: /[$.]/
+id_chars: /[$.]/
 
-bool_literal : TRUE | FALSE
-decimal_literal : DIGITS
-hexadecimal_literal : "0x" HEX_DIGITS
+bool_literal : true | false
+decimal_literal : digits
+hexadecimal_literal : "0x" hex_digits
 integer_literal : decimal_literal | hexadecimal_literal
 negated_integer_literal : "-" integer_literal
 ?posneg_integer_literal : integer_literal | negated_integer_literal
@@ -26,8 +26,8 @@ string_literal  : ESCAPED_STRING
 constant_literal : bool_literal | integer_literal | float_literal | string_literal
 
 // Identifier syntax
-bare_id : (LETTER| UNDERSCORE) (LETTER|DIGIT|UNDERSCORE|ID_CHARS)*
-suffix_id : DIGITS | ((LETTER | ID_PUNCT) (LETTER | ID_PUNCT | DIGITS)*)
+bare_id : (letter| underscore) (letter|digit|underscore|id_chars)*
+suffix_id : digits | ((letter | id_punct) (letter | id_punct | digits)*)
 
 // Dimensions
 dimension : "?" | decimal_literal
@@ -39,7 +39,7 @@ dimension_list : dimension_list_ranked | dimension_list_unranked
 // ----------------------------------------------------------------------
 // Identifiers
 
-ssa_id        : "%" suffix_id ("#" DIGITS)?
+ssa_id        : "%" suffix_id ("#" digits)?
 symbol_ref_id : "@" (suffix_id | string_literal)
 block_id      : "^" suffix_id
 type_alias     : "!" (string_literal | bare_id)
@@ -60,10 +60,10 @@ none_type : "none"
 !float_type : "f16" | "bf16" | "f32" | "f64"
 tensor_float_type : "tf32"
 index_type : "index"
-INTTYPE_WIDTH: /[1-9][0-9]*/  // Sized integers like i1, i4, i8, i16, i32.
-signed_integer_type : "si" INTTYPE_WIDTH
-unsigned_integer_type : "ui" INTTYPE_WIDTH
-signless_integer_type : "i" INTTYPE_WIDTH
+inttype_width: /[1-9][0-9]*/  // Sized integers like i1, i4, i8, i16, i32.
+signed_integer_type : "si" inttype_width
+unsigned_integer_type : "ui" inttype_width
+signless_integer_type : "i" inttype_width
 integer_type : signed_integer_type | unsigned_integer_type | signless_integer_type
 complex_type : "complex" "<" type ">"
 tuple_type : "tuple" "<" type_list_no_parens ">"
