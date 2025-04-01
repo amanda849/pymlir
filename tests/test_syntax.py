@@ -88,7 +88,7 @@ def test_functions(parser: Optional[Parser] = None):
       func.func @myfunc_a() {
         %c:2 = addf %a, %b : f32
       }
-      func.func @myfunc_b() {
+      func.func private @myfunc_b() {
         %d:2 = addf %a, %b : f64
         ^e:
         %f:2 = addf %d, %d : f64

@@ -659,6 +659,7 @@ class GenericModule(ModuleType):
 
 @dataclass
 class Function(Node):
+    visibility: Optional[str]
     name: SymbolRefId
     args: Optional[List["NamedArgument"]]
     result_types: Optional[List[Type]]
@@ -668,6 +669,8 @@ class Function(Node):
 
     def dump(self, indent=0) -> str:
         result = 'func.func'
+        if self.visibility:
+            result += ' %s' % self.visibility
         result += ' %s' % self.name.dump(indent)
         arg_list = self.args if self.args else []
         result += '(%s)' % ', '.join(

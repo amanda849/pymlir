@@ -124,6 +124,7 @@ class TreeToMlir(Transformer):
     block = astnodes.Block.from_lark
     region = astnodes.Region
     module = astnodes.Module.from_lark
+    private = lambda self, val: str(val[0])
     function = astnodes.Function.from_lark
     generic_module = astnodes.GenericModule.from_lark
     named_argument = astnodes.NamedArgument.from_lark

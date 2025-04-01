@@ -143,7 +143,7 @@ class IRBuilder:
         if name is None:
             name = self.name_gen("fn")
 
-        op = mast.Function(mast.SymbolRefId(value=name), [], [], None,
+        op = mast.Function(None, mast.SymbolRefId(value=name), [], [], None,
                            mast.Region([]))
 
         self._insert_op_in_block([], op)
