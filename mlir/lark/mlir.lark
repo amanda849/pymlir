@@ -304,7 +304,7 @@ affine_map_list : affine_map ("," affine_map)*
 // General structure and top-level definitions
 
 // Definitions of affine maps/integer sets/aliases are at the top of the file
-type_alias_def : type_alias "=" "type" type
+type_alias_def : type_alias "=" type
 affine_map_def      : map_or_set_id "=" affine_map_inline
 semi_affine_map_def : map_or_set_id "=" semi_affine_map_inline
 integer_set_def     : map_or_set_id "=" integer_set_inline

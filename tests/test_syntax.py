@@ -212,13 +212,13 @@ def test_definitions(parser: Optional[Parser] = None):
   library_call = "external_outerproduct_matmul"
 }
 
-!vector_type_A = type vector<4xf32>
-!vector_type_B = type vector<4xf32>
-!vector_type_C = type vector<4x4xf32>
+!vector_type_A = vector<4xf32>
+!vector_type_B = vector<4xf32>
+!vector_type_C = vector<4x4xf32>
 
-!matrix_type_A = type memref<?x?x!vector_type_A>
-!matrix_type_B = type memref<?x?x!vector_type_B>
-!matrix_type_C = type memref<?x?x!vector_type_C>
+!matrix_type_A = memref<?x?x!vector_type_A>
+!matrix_type_B = memref<?x?x!vector_type_B>
+!matrix_type_C = memref<?x?x!vector_type_C>
     '''
     parser = parser or Parser()
     module = parser.parse(code)
