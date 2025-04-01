@@ -59,11 +59,9 @@ class TreeToMlir(Transformer):
     # MLIR Types
 
     none_type = astnodes.NoneType.from_lark
-    F16 = lambda self, tok: astnodes.FloatTypeEnum("f16")
-    BF16 = lambda self, tok: astnodes.FloatTypeEnum("bf16")
-    F32 = lambda self, tok: astnodes.FloatTypeEnum("f32")
-    F64 = lambda self, tok: astnodes.FloatTypeEnum("f64")
-    float_type = lambda self, tok: astnodes.FloatType(astnodes.FloatTypeEnum(tok[0].value))
+    standard_float_type = lambda self, tok: astnodes.StandardFloatType(astnodes.FloatTypeEnum(tok[0].value))
+    custom_float_type = lambda self, tok: astnodes.CustomFloatType(tok[1], tok[3], tok[5], len(tok) == 6)
+    float_type = lambda self, tok: tok[0]
     tensor_float_type = astnodes.TensorFloatType.from_lark
     index_type = astnodes.IndexType.from_lark
     signed_integer_type = astnodes.SignedIntegerType.from_lark

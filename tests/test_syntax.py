@@ -317,6 +317,16 @@ func.func @integer_test(%a: si16, %b: ui32, %c: i7) {
     module = parser.parse(code)
     print(module.pretty())
 
+def test_float_type(parser: Optional[Parser] = None):
+    code = '''
+func.func @float_test(%a: f16, %b: f8E5M2, %c: f4E2M1FN) {
+  return
+}
+    '''
+    parser = parser or Parser()
+    module = parser.parse(code)
+    print(module.pretty())
+
 
 if __name__ == '__main__':
     p = Parser()
@@ -335,3 +345,4 @@ if __name__ == '__main__':
     test_generic_dialect_llvm(p)
     test_generic_dialect_generic_op(p)
     test_integer_sign(p)
+    test_float_type(p)

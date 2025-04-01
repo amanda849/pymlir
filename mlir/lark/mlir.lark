@@ -57,7 +57,9 @@ ssa_use_list : ssa_use ("," ssa_use)*
 
 // Standard types
 none_type : "none"
-!float_type : "f16" | "bf16" | "f32" | "f64"
+!standard_float_type : "f16" | "bf16" | "f32" | "f64"
+!custom_float_type : "f" digits "E" digits "M" digits "FN"?
+float_type :  standard_float_type | custom_float_type
 tensor_float_type : "tf32"
 index_type : "index"
 inttype_width: /[1-9][0-9]*/  // Sized integers like i1, i4, i8, i16, i32.

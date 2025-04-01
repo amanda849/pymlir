@@ -88,9 +88,9 @@ class IRBuilder:
 
     name_gen = UniqueNameGenerator(forced_prefix="_pymlir_")
 
-    F16 = mast.FloatType(type=mast.FloatTypeEnum.f16)
-    F32 = mast.FloatType(type=mast.FloatTypeEnum.f32)
-    F64 = mast.FloatType(type=mast.FloatTypeEnum.f64)
+    F16 = mast.StandardFloatType(type=mast.FloatTypeEnum.f16)
+    F32 = mast.StandardFloatType(type=mast.FloatTypeEnum.f32)
+    F64 = mast.StandardFloatType(type=mast.FloatTypeEnum.f64)
     INT32 = mast.IntegerType(32)
     INT64 = mast.IntegerType(64)
     INDEX = mast.IndexType()

@@ -126,10 +126,27 @@ class FloatTypeEnum(Enum):
 
 @dataclass
 class FloatType(Type):
+    pass
+
+
+@dataclass
+class StandardFloatType(FloatType):
     type: FloatTypeEnum
 
     def dump(self, indent: int = 0) -> str:
         return self.type.name
+
+
+@dataclass
+class CustomFloatType(FloatType):
+    width: int
+    exponent: int
+    mantissa: int
+    special_values: bool
+    
+    def dump(self, indent: int = 0) -> str:
+        sv = "" if self.special_values else "FN"
+        return f"f{self.width}E{self.exponent}M{self.mantissa}{sv}"
 
 
 @dataclass
