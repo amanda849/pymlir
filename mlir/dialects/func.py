@@ -42,7 +42,9 @@ class ReturnOperation(DialectOp):
     values: Optional[List[SsaUse]] = None
     types: Optional[List[mast.Type]] = None
     _syntax_ = ['return',
-                'return {values.ssa_use_list} : {types.type_list_no_parens}']
+                'func.return',
+                'return {values.ssa_use_list} : {types.type_list_no_parens}',
+                'func.return {values.ssa_use_list} : {types.type_list_no_parens}']
 
     def dump(self, indent: int = 0) -> str:
         output = 'return'
