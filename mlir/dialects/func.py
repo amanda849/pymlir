@@ -1,7 +1,7 @@
 
 import inspect
 import sys
-from typing import List, Tuple, Optional, Union
+from typing import List, Optional, Union
 from dataclasses import dataclass
 
 import mlir.astnodes as mast
@@ -26,7 +26,9 @@ class CallOperation(DialectOp):
     func_type: mast.FunctionType
     args: Optional[List[SsaUse]] = None
     argtypes: Optional[List[mast.Type]] = None
-    _syntax_ = ['func.call {func.symbol_ref_id} () : {func_type.function_type}',
+    _syntax_ = ['call {func.symbol_ref_id} () : {func_type.function_type}',
+                'func.call {func.symbol_ref_id} () : {func_type.function_type}',
+                'call {func.symbol_ref_id} ( {args.ssa_use_list} ) : {func_type.function_type}',
                 'func.call {func.symbol_ref_id} ( {args.ssa_use_list} ) : {func_type.function_type}']
 
 @dataclass
