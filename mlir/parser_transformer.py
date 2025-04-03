@@ -76,7 +76,6 @@ class TreeToMlir(Transformer):
     ranked_memref_type = astnodes.RankedMemRefType.from_lark
     unranked_memref_type = astnodes.UnrankedMemRefType.from_lark
     opaque_dialect_item = astnodes.OpaqueDialectType.from_lark
-    pretty_dialect_item = astnodes.PrettyDialectType.from_lark
     llvm_function_type = astnodes.LlvmFunctionType.from_lark
     function_type = astnodes.FunctionType.from_lark
     strided_layout = astnodes.StridedLayout.from_lark
@@ -189,7 +188,7 @@ class TreeToMlir(Transformer):
     stride_list = list
     dimension_list_ranked = list
     static_dimension_list = list
-    pretty_dialect_item_body = list
+    opaque_dialect_item_body = list
     type_list_no_parens = list
     affine_constraint_conjunction = list
     function_result_list_no_parens = list
@@ -222,6 +221,7 @@ class TreeToMlir(Transformer):
     tensor_memref_element_type = lambda self, value: value[0]
     tensor_type = lambda self, value: value[0]
     memref_type = lambda self, value: value[0]
+    standard_non_function_type = lambda self, value: value[0]
     standard_type = lambda self, value: value[0]
     dialect_type = lambda self, value: value[0]
     non_function_type = lambda self, value: value[0]

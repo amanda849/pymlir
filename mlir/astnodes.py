@@ -292,16 +292,6 @@ class OpaqueDialectType(Type):
     def dump(self, indent: int = 0) -> str:
         return '!%s<"%s">' % (self.dialect, self.contents)
 
-@dataclass
-class PrettyDialectType(Type):
-    dialect: str
-    type: str
-    body: List[str]
-
-    def dump(self, indent: int = 0) -> str:
-        return '!%s.%s<%s>' % (self.dialect, self.type, ', '.join(
-            dump_or_value(item, indent) for item in self.body))
-
 
 @dataclass
 class FunctionType(Type):
@@ -636,7 +626,7 @@ class GenericModule(ModuleType):
     args: List["NamedArgument"]
     region: "Region"
     attributes: Optional[AttributeDict]
-    type: List[Type]
+    type: Type | List[Type]
     location: Optional[Location] = None
 
     def dump(self, indent=0) -> str:
@@ -651,7 +641,10 @@ class GenericModule(ModuleType):
         result += ')'
         if self.attributes:
             result += ' ' + dump_or_value(self.attributes, indent)
-        result += ' : ' + self.type.dump(indent)
+        if isinstance(self.type, list):
+            result += ' : ' + ', '.join(t.dump(indent) for t in self.type)
+        else:
+            result += ' : ' + self.type.dump(indent)
         if self.location:
             result += ' ' + self.location.dump(indent)
         return result

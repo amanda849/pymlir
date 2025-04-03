@@ -89,23 +89,23 @@ ranked_memref_type : "memref" "<" dimension_list_ranked tensor_memref_element_ty
 unranked_memref_type : "memref" "<*x" tensor_memref_element_type optional_memory_space ">"
 memref_type : ranked_memref_type | unranked_memref_type
 
-// Dialect types - these can be opaque, pretty, or using custom dialects
-opaque_dialect_item : bare_id "<" string_literal ">"
-pretty_dialect_item : bare_id "." bare_id pretty_dialect_item_body?
-pretty_dialect_item_body : "<" pretty_dialect_item_contents ("," pretty_dialect_item_contents)* ">"
-?pretty_dialect_item_contents : ("(" pretty_dialect_item_contents ")")
-                              | ("[" pretty_dialect_item_contents "]")
-                              | ("{" pretty_dialect_item_contents "}")
+// Dialect types - these can be opaque, or using custom dialects
+opaque_dialect_item : bare_id opaque_dialect_item_body
+opaque_dialect_item_body : "<" opaque_dialect_item_contents ("," opaque_dialect_item_contents)* ">"
+?opaque_dialect_item_contents : ("(" opaque_dialect_item_contents ")")
+                              | ("[" opaque_dialect_item_contents "]")
+                              | ("{" opaque_dialect_item_contents "}")
                               | bare_id
                               | constant_literal
                               | type
 
 // NOTE: "pymlir_dialect_types" is defined externally by pyMLIR
-dialect_type : "!" (pymlir_dialect_types | opaque_dialect_item | pretty_dialect_item)
+dialect_type.1 : "!" (pymlir_dialect_types | opaque_dialect_item)
 
 // Final type definition
-standard_type     : complex_type | float_type | tensor_float_type | function_type | llvm_function_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type
-non_function_type : type_alias | complex_type | float_type | tensor_float_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type | dialect_type
+standard_non_function_type.1 : complex_type | float_type | tensor_float_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type
+standard_type.1 : standard_non_function_type | function_type | llvm_function_type
+non_function_type : type_alias | standard_non_function_type | dialect_type
 type              : type_alias | dialect_type | standard_type
 
 // Uses of types
@@ -149,7 +149,7 @@ dialect_attribute_entry : (bare_id "." bare_id) | (bare_id "." bare_id "=" attri
 
 // Dialect attributes
 // NOTE: "pymlir_dialect_types" is defined externally by pyMLIR
-dialect_attribute : "#" (pymlir_dialect_types | opaque_dialect_item | pretty_dialect_item)
+dialect_attribute : "#" (pymlir_dialect_types | opaque_dialect_item)
 
 // Attribute dictionaries
 attribute_entry : dialect_attribute_entry | dependent_attribute_entry
