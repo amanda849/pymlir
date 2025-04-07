@@ -57,8 +57,8 @@ class Parser(object):
 
         # Create a parser from the MLIR EBNF file, default dialects, and
         # additional dialects if exist
-        op_expr = '?pymlir_dialect_ops: ' + '|'.join(rule_dict_ops.keys())
-        type_expr = '?pymlir_dialect_types: ' + '|'.join(
+        op_expr = '?pymlir_dialect_ops.1: ' + '|'.join(rule_dict_ops.keys())
+        type_expr = '?pymlir_dialect_types.1: ' + '|'.join(
             rule_dict_types.keys())
         parser_src += op_expr + '\n' + type_expr
 
