@@ -1,7 +1,7 @@
 """ Classes containing MLIR AST node types, fields, and conversion back to
     MLIR. """
 
-from enum import Enum, auto
+from enum import Enum
 from typing import Any, List, Union, Optional
 from lark import Token
 from lark.tree import Tree
@@ -142,11 +142,67 @@ class CustomFloatType(FloatType):
     width: int
     exponent: int
     mantissa: int
-    special_values: bool
+    bias: int = 0
+    signed: bool = True
+    zero: bool = True
+    infinities: bool = True
+    nans: bool = True
+
+    # FIXME: remove after user update
+    special_values: bool = True
+
+    @classmethod
+    def from_lark(cls, args: list):
+        bias: int = 0
+        signed: bool = True
+        zero: bool = True
+        infinities: bool = True
+        nans: bool = True
+        i = 0
+        while i < len(args):
+            a = args[i]
+            if isinstance(a, Token):
+                if a.value == "f":
+                    i += 1
+                    width = args[i]
+                elif a.value == "E":
+                    i += 1
+                    exponent = args[i]
+                elif a.value == "M":
+                    i += 1
+                    mantissa = args[i]
+                elif a.value == "B":
+                    i += 1
+                    bias = args[i]
+                elif a.value == "F":
+                    infinities = False
+                elif a.value == "N":
+                    nans = False
+                elif a.value == "U":
+                    signed = False
+                    zero = False
+                elif a.value == "Z":
+                    zero = True
+                else:
+                    raise ValueError(f"Unknow format specification: {a}")
+            else:
+                raise ValueError(f"Bad argument type: {a}")
+            i += 1
+        return cls(width, exponent, mantissa, bias, signed, zero, infinities, nans)
+
     
     def dump(self, indent: int = 0) -> str:
-        sv = "" if self.special_values else "FN"
-        return f"f{self.width}E{self.exponent}M{self.mantissa}{sv}"
+        suffix = ""
+        if not self.infinities:
+            suffix += "F"
+        if not self.nans:
+            suffix += "N"
+        if not self.signed:
+            suffix += "U"
+            if self.zero:
+                suffix += "Z"
+        bias = "" if self.bias == 0 else f"B{self.bias}"
+        return f"f{self.width}E{self.exponent}M{self.mantissa}{bias}{suffix}"
 
 
 @dataclass

@@ -319,7 +319,7 @@ func.func @integer_test(%a: si16, %b: ui32, %c: i7) {
 
 def test_float_type(parser: Optional[Parser] = None):
     code = '''
-func.func @float_test(%a: f16, %b: f8E5M2, %c: f4E2M1FN) {
+func.func @float_test(%a: f16, %b: f8E5M2, %c: f4E2M1FN, %d: f8E4M3B11FNUZ, %e: f8E8M0FNU) {
   return
 }
     '''

@@ -60,7 +60,7 @@ class TreeToMlir(Transformer):
 
     none_type = astnodes.NoneType.from_lark
     standard_float_type = lambda self, tok: astnodes.StandardFloatType(astnodes.FloatTypeEnum(tok[0].value))
-    custom_float_type = lambda self, tok: astnodes.CustomFloatType(tok[1], tok[3], tok[5], len(tok) == 6)
+    custom_float_type = astnodes.CustomFloatType.from_lark
     float_type = lambda self, tok: tok[0]
     tensor_float_type = astnodes.TensorFloatType.from_lark
     index_type = astnodes.IndexType.from_lark

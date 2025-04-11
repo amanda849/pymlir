@@ -58,7 +58,7 @@ ssa_use_list : ssa_use ("," ssa_use)*
 // Standard types
 none_type : "none"
 !standard_float_type : "f16" | "bf16" | "f32" | "f64"
-!custom_float_type : "f" digits "E" digits "M" digits "FN"?
+!custom_float_type : "f" digits "E" digits "M" digits ("B" digits)? "F"? "N"? "U"? "Z"?
 float_type :  standard_float_type | custom_float_type
 tensor_float_type : "tf32"
 index_type : "index"
