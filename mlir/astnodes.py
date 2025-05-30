@@ -258,8 +258,8 @@ class TupleType(Type):
 
 @dataclass
 class VectorType(Type):
-    dimensions: int
-    element_type: Union[IntegerType, FloatType]
+    dimensions: List[int]
+    element_type: Union[IntegerType, FloatType, IndexType]
 
     def dump(self, indent: int = 0) -> str:
         return 'vector<%s>' % ('x'.join(
