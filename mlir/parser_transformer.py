@@ -85,6 +85,7 @@ class TreeToMlir(Transformer):
 
     array_attribute = astnodes.ArrayAttr
     bool_attribute = astnodes.BoolAttr.from_lark
+    dense_array_attribute = astnodes.DenseArrayAttr.from_lark
     dictionary_attribute = astnodes.DictionaryAttr
     dense_elements_attribute = astnodes.DenseElementsAttr.from_lark
     opaque_elements_attribute = astnodes.OpaqueElementsAttr.from_lark
@@ -214,6 +215,7 @@ class TreeToMlir(Transformer):
     bool_literal = lambda self, value: value[0]
     integer_literal = lambda self, value: value[0]
     constant_literal = lambda self, value: value[0]
+    constant_literal_list = list
     dimension_list = lambda self, value: value[0]
     ssa_use = lambda self, value: value[0]
     integer_type = lambda self, value: value[0]

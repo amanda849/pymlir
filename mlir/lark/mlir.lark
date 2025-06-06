@@ -24,6 +24,7 @@ negated_integer_literal : "-" integer_literal
 float_literal : /[-+]?[0-9]+[.][0-9]*([eE][-+]?[0-9]+)?/
 string_literal  : ESCAPED_STRING
 constant_literal : bool_literal | posneg_integer_literal | float_literal | string_literal
+constant_literal_list : constant_literal ("," constant_literal)*
 
 // Identifier syntax
 bare_id : (letter| underscore) (letter|digit|underscore|id_chars)*
@@ -123,6 +124,7 @@ ssa_use_and_type_list : ssa_use_and_type ("," ssa_use_and_type)*
 // Simple attribute types
 array_attribute : "[" (attribute_value ("," attribute_value)*)? "]"
 bool_attribute : bool_literal
+dense_array_attribute: "array" "<" (integer_type | float_type) ":" constant_literal_list ">"
 dictionary_attribute : "{" (attribute_entry ("," attribute_entry)*)? "}"
 ?elements_attribute : dense_elements_attribute | opaque_elements_attribute | sparse_elements_attribute
 float_attribute : (float_literal optional_float_type) | (hexadecimal_literal ":" float_type)
@@ -140,7 +142,7 @@ opaque_elements_attribute : "opaque" "<" bare_id  "," hexadecimal_literal ">" ":
 sparse_elements_attribute : "sparse" "<" attribute_value "," attribute_value ">" ":" ( tensor_type | vector_type )
 
 // Standard attributes
-standard_attribute : array_attribute | bool_attribute | dictionary_attribute | elements_attribute | float_attribute | integer_attribute | integer_set_attribute | string_attribute | symbol_ref_attribute | type_attribute | unit_attribute
+standard_attribute : array_attribute | bool_attribute | dense_array_attribute | dictionary_attribute | elements_attribute | float_attribute | integer_attribute | integer_set_attribute | string_attribute | symbol_ref_attribute | type_attribute | unit_attribute
 
 // Attribute values
 attribute_value : attribute_alias | dialect_attribute | standard_attribute

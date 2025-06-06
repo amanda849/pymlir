@@ -415,6 +415,16 @@ class DictionaryAttr(Attribute):
 
 
 @dataclass
+class DenseArrayAttr(Attribute):
+    type: IntegerType | FloatType
+    value: List[bool | int | float]
+
+    def dump(self, indent: int = 0) -> str:
+        return 'array<%s: %s>' % (self.type.dump(indent),
+                                  dump_or_value(self.value, indent))
+
+
+@dataclass
 class ElementsAttr(Attribute):
     pass
 
