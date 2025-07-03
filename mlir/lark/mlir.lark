@@ -25,6 +25,8 @@ float_literal : /[-+]?[0-9]+[.][0-9]*([eE][-+]?[0-9]+)?/
 string_literal  : ESCAPED_STRING
 constant_literal : bool_literal | posneg_integer_literal | float_literal | string_literal
 constant_literal_list : constant_literal ("," constant_literal)*
+tensor_literal: integer_literal | float_literal | bool_literal | string_literal | "[" "]" | "[" tensor_literal ("," tensor_literal)* "]"
+
 
 // Identifier syntax
 bare_id : (letter| underscore) (letter|digit|underscore|id_chars)*
@@ -76,7 +78,7 @@ vector_element_type : float_type | integer_type | index_type
 vector_type : "vector" "<" static_dimension_list vector_element_type ">"
 
 // Tensor type
-tensor_memref_element_type : vector_element_type | vector_type | complex_type | type_alias
+tensor_memref_element_type : vector_element_type | vector_type | complex_type | type_alias | dialect_type
 ranked_tensor_type : "tensor" "<" dimension_list_ranked tensor_memref_element_type ">"
 unranked_tensor_type : "tensor" "<" dimension_list_unranked tensor_memref_element_type ">"
 tensor_type : ranked_tensor_type | unranked_tensor_type
@@ -137,9 +139,9 @@ unit_attribute : "unit"
 
 
 // Elements attribute types
-dense_elements_attribute : "dense" "<" attribute_value ">" ":" ( tensor_type | vector_type )
-opaque_elements_attribute : "opaque" "<" bare_id  "," hexadecimal_literal ">" ":" ( tensor_type | vector_type )
-sparse_elements_attribute : "sparse" "<" attribute_value "," attribute_value ">" ":" ( tensor_type | vector_type )
+dense_elements_attribute : "dense" "<" tensor_literal? ">" ":" ( tensor_type | vector_type | type_alias)
+opaque_elements_attribute : "opaque" "<" bare_id  "," hexadecimal_literal ">" ":" ( tensor_type | vector_type | type_alias)
+sparse_elements_attribute : "sparse" "<" attribute_value "," attribute_value ">" ":" ( tensor_type | vector_type | type_alias)
 
 // Standard attributes
 standard_attribute : array_attribute | bool_attribute | dense_array_attribute | dictionary_attribute | elements_attribute | float_attribute | integer_attribute | integer_set_attribute | string_attribute | symbol_ref_attribute | type_attribute | unit_attribute
@@ -186,7 +188,7 @@ operation         : optional_op_result_list (pymlir_dialect_ops | custom_operati
 ssa_id_and_type : ssa_id ":" type
 ssa_id_and_type_list : ssa_id_and_type ("," ssa_id_and_type)*
 ?block_arg_list : "(" optional_ssa_and_type_list ")"
-operation_list: operation+
+operation_list: operation*
 
 block_label     : block_id optional_block_arg_list ":"
 successor_list   : "[" block_id? ("," block_id)* "]"
@@ -228,7 +230,7 @@ named_argument : ssa_id ":" type optional_attr_dict
 argument_list : (named_argument ("," named_argument)*) | (type optional_attr_dict ("," type optional_attr_dict)*)
 argument_assignment : ssa_id "=" ssa_id
 argument_assignment_list_no_parens : argument_assignment ("," argument_assignment)*
-argument_assignment_list_parens : ("(" ")") | ("(" argument_assignment_list_no_parens ")")
+?argument_assignment_list_parens : ("(" ")") | ("(" argument_assignment_list_no_parens ")")
 
 // Return values
 function_result : type optional_attr_dict
@@ -288,7 +290,7 @@ semi_affine_expr : "(" semi_affine_expr ")"                        -> semi_affin
 ?semi_affine_oprnd : symbol_or_const
                    | "(" semi_affine_expr ")" -> semi_affine_parens
 
-?multi_dim_affine_expr_no_parens : affine_expr ("," affine_expr)*
+?multi_dim_affine_expr_no_parens : affine_expr? ("," affine_expr)*
 ?multi_dim_semi_affine_expr_no_parens : semi_affine_expr ("," semi_affine_expr)*
 multi_dim_affine_expr : "(" multi_dim_affine_expr_no_parens ")"
 multi_dim_semi_affine_expr : "(" multi_dim_semi_affine_expr_no_parens ")"

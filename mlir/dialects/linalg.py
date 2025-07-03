@@ -185,9 +185,9 @@ class FillRng2DOp(DialectOp):
 
 @dataclass
 class LinalgGeneric(DialectOp):
-    inargs: List[mast.SsaId]
-    in_types: List[mast.Type]
     region: mast.Region
+    inargs: Optional[List[mast.SsaId]] = None
+    in_types: Optional[List[mast.Type]] = None
     outargs: Optional[List[mast.SsaId]] = None
     out_types: Optional[List[mast.Type]] = None
     init_args: Optional[List[mast.SsaId]] = None
@@ -196,6 +196,9 @@ class LinalgGeneric(DialectOp):
     attr: Optional[mast.Attribute] = None
 
     _syntax_ = [("linalg.generic {attr.attribute_value} "
+                 " outs( {outargs.ssa_id_list} : {out_types.type_list_no_parens} )"
+                 " {region.region}"),
+                 ("linalg.generic {attr.attribute_value} "
                  " ins( {inargs.ssa_id_list} : {in_types.type_list_no_parens} )"
                  " outs( {outargs.ssa_id_list} : {out_types.type_list_no_parens} )"
                  " {region.region}"),

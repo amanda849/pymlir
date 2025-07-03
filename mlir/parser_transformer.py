@@ -202,6 +202,7 @@ class TreeToMlir(Transformer):
     operation_list = list
     argument_list = list
     argument_assignment_list_no_parens = list
+    argument_assignment_list_parens = lambda self, value: (value[0] if value else [])
     definition_list = list
     function_list = list
     module_list = list
@@ -216,6 +217,7 @@ class TreeToMlir(Transformer):
     integer_literal = lambda self, value: value[0]
     constant_literal = lambda self, value: value[0]
     constant_literal_list = list
+    tensor_literal = lambda self, value: value[0]
     dimension_list = lambda self, value: value[0]
     ssa_use = lambda self, value: value[0]
     integer_type = lambda self, value: value[0]
