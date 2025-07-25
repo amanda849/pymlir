@@ -435,7 +435,7 @@ class DenseElementsAttr(ElementsAttr):
     type: Union[TensorType, VectorType]
 
     def dump(self, indent: int = 0) -> str:
-        return 'dense<%s> : %s' % (self.attribute.dump(indent),
+        return 'dense<%s> : %s' % (dump_or_value(self.attribute, indent),
                                    self.type.dump(indent))
 
 
