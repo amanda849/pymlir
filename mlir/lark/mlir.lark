@@ -336,7 +336,6 @@ definition_and_module_list   : definition_list module_list
 mlir_file: definition_and_function_list*       -> only_functions_and_definitions_file
          | definition_and_module_list*         -> mlir_file_as_definition_and_module_list
 
-
 ?start: mlir_file
 
 // Lark imports
