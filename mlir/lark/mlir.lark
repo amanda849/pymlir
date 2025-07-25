@@ -101,6 +101,8 @@ opaque_dialect_item_body : "<" opaque_dialect_item_contents ("," opaque_dialect_
                               | bare_id
                               | constant_literal
                               | type
+                              | bare_id "=" constant_literal
+                              | bare_id "=" "<" opaque_dialect_item_contents ">"
 
 // NOTE: "pymlir_dialect_types" is defined externally by pyMLIR
 dialect_type.1 : "!" (pymlir_dialect_types | opaque_dialect_item)
@@ -176,6 +178,7 @@ trailing_location : ("loc" "(" location ")")
 // Undefined operations in all dialects
 generic_operation : string_literal "(" optional_ssa_use_list ")" optional_successor_list optional_region_list optional_attr_dict trailing_type
 custom_operation  : bare_id "." bare_id optional_ssa_use_list trailing_type
+
 
 // Final operation definition
 // NOTE: "pymlir_dialect_ops" is defined externally by pyMLIR
