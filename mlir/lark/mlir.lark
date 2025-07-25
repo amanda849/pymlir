@@ -179,7 +179,6 @@ trailing_location : ("loc" "(" location ")")
 generic_operation : string_literal "(" optional_ssa_use_list ")" optional_successor_list optional_region_list optional_attr_dict trailing_type
 custom_operation  : bare_id "." bare_id optional_ssa_use_list trailing_type
 
-
 // Final operation definition
 // NOTE: "pymlir_dialect_ops" is defined externally by pyMLIR
 operation         : optional_op_result_list (pymlir_dialect_ops | custom_operation | generic_operation | module | generic_module | function) optional_trailing_loc
@@ -335,6 +334,7 @@ definition_and_module_list   : definition_list module_list
 
 mlir_file: definition_and_function_list*       -> only_functions_and_definitions_file
          | definition_and_module_list*         -> mlir_file_as_definition_and_module_list
+
 
 ?start: mlir_file
 
