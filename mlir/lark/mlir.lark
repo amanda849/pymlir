@@ -141,7 +141,7 @@ unit_attribute : "unit"
 
 
 // Elements attribute types
-dense_elements_attribute : "dense" "<" tensor_literal? ">" ":" ( tensor_type | vector_type | type_alias)
+dense_elements_attribute : "dense" "<" optional_tensor_literal ">" ":" ( tensor_type | vector_type | type_alias)
 opaque_elements_attribute : "opaque" "<" bare_id  "," hexadecimal_literal ">" ":" ( tensor_type | vector_type | type_alias)
 sparse_elements_attribute : "sparse" "<" attribute_value "," attribute_value ">" ":" ( tensor_type | vector_type | type_alias)
 
@@ -212,6 +212,7 @@ region_list : "(" region? ("," region)* ")"
 ?optional_int_type                      : ( ":" (index_type | integer_type) )? -> optional
 ?optional_type                          : (":" type)?                          -> optional
 ?optional_int_literal                   : (":" integer_literal)?               -> optional
+?optional_tensor_literal                : tensor_literal?                      -> optional
 ?optional_ssa_use_list                  : ssa_use_list?                        -> optional
 ?optional_attr_dict                     : attribute_dict?                      -> optional
 ?optional_trailing_loc                  : trailing_location?                   -> optional

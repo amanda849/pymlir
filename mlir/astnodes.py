@@ -431,12 +431,15 @@ class ElementsAttr(Attribute):
 
 @dataclass
 class DenseElementsAttr(ElementsAttr):
-    attribute: Attribute
+    attribute: Optional[Attribute]
     type: Union[TensorType, VectorType]
 
     def dump(self, indent: int = 0) -> str:
-        return 'dense<%s> : %s' % (dump_or_value(self.attribute, indent),
-                                   self.type.dump(indent))
+        if self.attribute:
+            return 'dense<%s> : %s' % (dump_or_value(self.attribute, indent),
+                                       self.type.dump(indent))
+        else:
+            return 'dense<> : %s' % self.type.dump(indent)
 
 
 @dataclass
