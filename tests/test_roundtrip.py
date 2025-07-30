@@ -76,7 +76,7 @@ def test_loop_dialect_roundtrip():
       %C_elem = load %C [ %i0 ] : memref<?xf32>
       %sum_elem = addf %B_elem , %C_elem : f32
       store %sum_elem , %result [ %i0 ] : memref<?xf32>
-    }
+    } 
     return
   }
 }"""
