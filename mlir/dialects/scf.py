@@ -4,16 +4,19 @@ import inspect
 import sys
 from mlir.dialect import Dialect, DialectOp, is_op, UnaryOperation
 import mlir.astnodes as mast
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, List, Tuple
 
 
 @dataclass
 class SCFConditionOp(DialectOp):
     condition: mast.SsaId
-    args: List[mast.SsaId]
-    out_types: List[mast.Type]
-    _syntax_ = ['scf.condition ( {condition.ssa_id} ) {args.ssa_id_list} : {out_types.type_list_no_parens}']
+    args: List[mast.SsaId] = field(default_factory=list) 
+    out_types: List[mast.Type] = field(default_factory=list) 
+    _syntax_ = [
+        'scf.condition ( {condition.ssa_id} ) {args.ssa_id_list} : {out_types.type_list_no_parens}',
+        'scf.condition ( {condition.ssa_id} )',
+    ]
 
 
 @dataclass
@@ -51,11 +54,15 @@ class SCFIfOp(DialectOp):
 
 @dataclass
 class SCFWhileOp(DialectOp):
-    assignments: List[Tuple[mast.SsaId, mast.Type]]
     out_type: mast.FunctionType
     while_body: mast.Region
     do_body: mast.Region
-    _syntax_ = ['scf.while ( {assignments.argument_assignment_list_no_parens} ) : {out_type.function_type} {while_body.region} do {do_body.region}']
+    assignments: List[Tuple[mast.SsaId, mast.Type]] = field(default_factory=list) 
+
+    _syntax_ = [
+        'scf.while {assignments.argument_assignment_list_parens} : {out_type.function_type} {while_body.region} do {do_body.region}',
+        'scf.while : {out_type.function_type} {while_body.region} do {do_body.region}',
+    ]
 
 
 @dataclass
