@@ -25,7 +25,7 @@ float_literal : /[-+]?[0-9]+[.][0-9]*([eE][-+]?[0-9]+)?/
 string_literal  : ESCAPED_STRING
 constant_literal : bool_literal | posneg_integer_literal | float_literal | string_literal
 constant_literal_list : constant_literal ("," constant_literal)*
-tensor_literal: integer_literal | float_literal | bool_literal | string_literal | "[" "]" | "[" tensor_literal ("," tensor_literal)* "]"
+tensor_literal: constant_literal | "[" "]" | "[" tensor_literal ("," tensor_literal)* "]"
 
 
 // Identifier syntax
