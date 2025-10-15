@@ -83,7 +83,17 @@ def test_loop_dialect_roundtrip():
     assert parse_string(src).dump() == src
 
 
+def test_id_roundtrip():
+    src = """module {
+  func.func @a0b00c000d10e01() {
+    return
+  }
+}"""
+    assert parse_string(src).dump() == src
+
+
 if __name__ == '__main__':
     test_toy_roundtrip()
     test_affine_expr_roundtrip()
     test_loop_dialect_roundtrip()
+    test_id_roundtrip()

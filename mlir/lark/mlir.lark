@@ -2,11 +2,8 @@
 
 // ----------------------------------------------------------------------
 // Low-level literal syntax
-digit      : /[0-9]/
 digits     : /[0-9]+/
-hex_digit  : /[0-9a-fA-F]/
 hex_digits : /[0-9a-fA-F]+/
-letter     : /[a-zA-Z]/
 letters    : /[a-zA-Z]+/
 id_punct   : /[$._-]/
 underscore : /[_]/
@@ -29,8 +26,8 @@ tensor_literal: constant_literal | "[" "]" | "[" tensor_literal ("," tensor_lite
 
 
 // Identifier syntax
-bare_id : (letter| underscore) (letter|digit|underscore|id_chars)*
-suffix_id : digits | ((letter | id_punct) (letter | id_punct | digits)*)
+bare_id : (letters | underscore) (letters | digits | underscore | id_chars)*
+suffix_id : digits | ((letters | id_punct) (letters | id_punct | digits)*)
 
 // Dimensions
 dimension : "?" | decimal_literal
