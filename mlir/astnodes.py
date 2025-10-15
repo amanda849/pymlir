@@ -148,9 +148,6 @@ class CustomFloatType(FloatType):
     infinities: bool = True
     nans: bool = True
 
-    # FIXME: remove after user update
-    special_values: bool = True
-
     @classmethod
     def from_lark(cls, args: list):
         bias: int = 0
@@ -164,16 +161,16 @@ class CustomFloatType(FloatType):
             if isinstance(a, Token):
                 if a.value == "f":
                     i += 1
-                    width = args[i]
+                    width = int(args[i])
                 elif a.value == "E":
                     i += 1
-                    exponent = args[i]
+                    exponent = int(args[i])
                 elif a.value == "M":
                     i += 1
-                    mantissa = args[i]
+                    mantissa = int(args[i])
                 elif a.value == "B":
                     i += 1
-                    bias = args[i]
+                    bias = int(args[i])
                 elif a.value == "F":
                     infinities = False
                 elif a.value == "N":
