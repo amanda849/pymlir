@@ -2,11 +2,8 @@
 
 // ----------------------------------------------------------------------
 // Low-level literal syntax
-digit      : /[0-9]/
 digits     : /[0-9]+/
-hex_digit  : /[0-9a-fA-F]/
 hex_digits : /[0-9a-fA-F]+/
-letter     : /[a-zA-Z]/
 letters    : /[a-zA-Z]+/
 id_punct   : /[$._-]/
 underscore : /[_]/
@@ -14,6 +11,8 @@ true       : "true"
 false      : "false"
 
 id_chars: /[$.]/
+
+_NL.2: /(\r?\n)+/
 
 bool_literal : true | false
 decimal_literal : digits
@@ -24,10 +23,14 @@ negated_integer_literal : "-" integer_literal
 float_literal : /[-+]?[0-9]+[.][0-9]*([eE][-+]?[0-9]+)?/
 string_literal  : ESCAPED_STRING
 constant_literal : bool_literal | posneg_integer_literal | float_literal | string_literal
+constant_literal_list : constant_literal ("," constant_literal)*
+tensor_literal: constant_literal | "[" "]" | "[" tensor_literal ("," tensor_literal)* "]"
+
 
 // Identifier syntax
-bare_id : (letter| underscore) (letter|digit|underscore|id_chars)*
-suffix_id : digits | ((letter | id_punct) (letter | id_punct | digits)*)
+bare_id : (letters | underscore) (letters | digits | underscore | id_chars)*
+alias_id : (letters | underscore) (letters | digits | underscore)*
+suffix_id : digits | ((letters | id_punct) (letters | id_punct | digits)*)
 
 // Dimensions
 dimension : "?" | decimal_literal
@@ -42,9 +45,9 @@ dimension_list : dimension_list_ranked | dimension_list_unranked
 ssa_id        : "%" suffix_id ("#" digits)?
 symbol_ref_id : "@" (suffix_id | string_literal)
 block_id      : "^" suffix_id
-type_alias     : "!" (string_literal | bare_id)
+type_alias     : "!" (string_literal | alias_id) _NL?
 map_or_set_id : "#" suffix_id
-attribute_alias : "#" (string_literal | bare_id)
+attribute_alias : "#" (string_literal | alias_id) _NL?
 
 ssa_id_list : ssa_id ("," ssa_id)*
 
@@ -57,7 +60,9 @@ ssa_use_list : ssa_use ("," ssa_use)*
 
 // Standard types
 none_type : "none"
-!float_type : "f16" | "bf16" | "f32" | "f64"
+!standard_float_type : "f16" | "bf16" | "f32" | "f64"
+!custom_float_type : "f" digits "E" digits "M" digits ("B" digits)? "F"? "N"? "U"? "Z"?
+float_type :  standard_float_type | custom_float_type
 tensor_float_type : "tf32"
 index_type : "index"
 inttype_width: /[1-9][0-9]*/  // Sized integers like i1, i4, i8, i16, i32.
@@ -69,11 +74,11 @@ complex_type : "complex" "<" type ">"
 tuple_type : "tuple" "<" type_list_no_parens ">"
 
 // Vector types
-vector_element_type : float_type | integer_type
+vector_element_type : float_type | integer_type | index_type
 vector_type : "vector" "<" static_dimension_list vector_element_type ">"
 
 // Tensor type
-tensor_memref_element_type : vector_element_type | vector_type | complex_type | type_alias
+tensor_memref_element_type : vector_element_type | vector_type | complex_type | type_alias | dialect_type
 ranked_tensor_type : "tensor" "<" dimension_list_ranked tensor_memref_element_type ">"
 unranked_tensor_type : "tensor" "<" dimension_list_unranked tensor_memref_element_type ">"
 tensor_type : ranked_tensor_type | unranked_tensor_type
@@ -87,23 +92,26 @@ ranked_memref_type : "memref" "<" dimension_list_ranked tensor_memref_element_ty
 unranked_memref_type : "memref" "<*x" tensor_memref_element_type optional_memory_space ">"
 memref_type : ranked_memref_type | unranked_memref_type
 
-// Dialect types - these can be opaque, pretty, or using custom dialects
-opaque_dialect_item : bare_id "<" string_literal ">"
-pretty_dialect_item : bare_id "." bare_id pretty_dialect_item_body?
-pretty_dialect_item_body : "<" pretty_dialect_item_contents ("," pretty_dialect_item_contents)* ">"
-?pretty_dialect_item_contents : ("(" pretty_dialect_item_contents ")")
-                              | ("[" pretty_dialect_item_contents "]")
-                              | ("{" pretty_dialect_item_contents "}")
+// Dialect types - these can be opaque, or using custom dialects
+opaque_dialect_item : bare_id opaque_dialect_item_body
+opaque_dialect_item_body : "<" opaque_dialect_item_contents ("," opaque_dialect_item_contents)* ">"
+?opaque_dialect_item_contents : ("(" opaque_dialect_item_contents ")")
+                              | ("[" opaque_dialect_item_contents "]")
+                              | ("{" opaque_dialect_item_contents "}")
                               | bare_id
                               | constant_literal
                               | type
+                              | bare_id "=" constant_literal
+                              | bare_id "=" attribute_alias
+                              | bare_id "=" "<" opaque_dialect_item_contents ">"
 
 // NOTE: "pymlir_dialect_types" is defined externally by pyMLIR
-dialect_type : "!" (pymlir_dialect_types | opaque_dialect_item | pretty_dialect_item)
+dialect_type.1 : "!" (pymlir_dialect_types | opaque_dialect_item)
 
 // Final type definition
-standard_type     : complex_type | float_type | tensor_float_type | function_type | llvm_function_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type
-non_function_type : type_alias | complex_type | float_type | tensor_float_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type | dialect_type
+standard_non_function_type.1 : complex_type | float_type | tensor_float_type | index_type | integer_type | memref_type | none_type | tensor_type | tuple_type | vector_type
+standard_type.1 : standard_non_function_type | function_type | llvm_function_type
+non_function_type : type_alias | standard_non_function_type | dialect_type
 type              : type_alias | dialect_type | standard_type
 
 // Uses of types
@@ -121,6 +129,7 @@ ssa_use_and_type_list : ssa_use_and_type ("," ssa_use_and_type)*
 // Simple attribute types
 array_attribute : "[" (attribute_value ("," attribute_value)*)? "]"
 bool_attribute : bool_literal
+dense_array_attribute: "array" "<" (integer_type | float_type) ":" constant_literal_list ">"
 dictionary_attribute : "{" (attribute_entry ("," attribute_entry)*)? "}"
 ?elements_attribute : dense_elements_attribute | opaque_elements_attribute | sparse_elements_attribute
 float_attribute : (float_literal optional_float_type) | (hexadecimal_literal ":" float_type)
@@ -133,12 +142,12 @@ unit_attribute : "unit"
 
 
 // Elements attribute types
-dense_elements_attribute : "dense" "<" attribute_value ">" ":" ( tensor_type | vector_type )
-opaque_elements_attribute : "opaque" "<" bare_id  "," hexadecimal_literal ">" ":" ( tensor_type | vector_type )
-sparse_elements_attribute : "sparse" "<" attribute_value "," attribute_value ">" ":" ( tensor_type | vector_type )
+dense_elements_attribute : "dense" "<" optional_tensor_literal ">" ":" ( tensor_type | vector_type | type_alias)
+opaque_elements_attribute : "opaque" "<" bare_id  "," hexadecimal_literal ">" ":" ( tensor_type | vector_type | type_alias)
+sparse_elements_attribute : "sparse" "<" attribute_value "," attribute_value ">" ":" ( tensor_type | vector_type | type_alias)
 
 // Standard attributes
-standard_attribute : array_attribute | bool_attribute | dictionary_attribute | elements_attribute | float_attribute | integer_attribute | integer_set_attribute | string_attribute | symbol_ref_attribute | type_attribute | unit_attribute
+standard_attribute : array_attribute | bool_attribute | dense_array_attribute | dictionary_attribute | elements_attribute | float_attribute | integer_attribute | integer_set_attribute | string_attribute | symbol_ref_attribute | type_attribute | unit_attribute
 
 // Attribute values
 attribute_value : attribute_alias | dialect_attribute | standard_attribute
@@ -147,7 +156,7 @@ dialect_attribute_entry : (bare_id "." bare_id) | (bare_id "." bare_id "=" attri
 
 // Dialect attributes
 // NOTE: "pymlir_dialect_types" is defined externally by pyMLIR
-dialect_attribute : "#" (pymlir_dialect_types | opaque_dialect_item | pretty_dialect_item)
+dialect_attribute : "#" (pymlir_dialect_types | opaque_dialect_item)
 
 // Attribute dictionaries
 attribute_entry : dialect_attribute_entry | dependent_attribute_entry
@@ -182,7 +191,7 @@ operation         : optional_op_result_list (pymlir_dialect_ops | custom_operati
 ssa_id_and_type : ssa_id ":" type
 ssa_id_and_type_list : ssa_id_and_type ("," ssa_id_and_type)*
 ?block_arg_list : "(" optional_ssa_and_type_list ")"
-operation_list: operation+
+operation_list: operation*
 
 block_label     : block_id optional_block_arg_list ":"
 successor_list   : "[" block_id? ("," block_id)* "]"
@@ -204,6 +213,7 @@ region_list : "(" region? ("," region)* ")"
 ?optional_int_type                      : ( ":" (index_type | integer_type) )? -> optional
 ?optional_type                          : (":" type)?                          -> optional
 ?optional_int_literal                   : (":" integer_literal)?               -> optional
+?optional_tensor_literal                : tensor_literal?                      -> optional
 ?optional_ssa_use_list                  : ssa_use_list?                        -> optional
 ?optional_attr_dict                     : attribute_dict?                      -> optional
 ?optional_trailing_loc                  : trailing_location?                   -> optional
@@ -224,7 +234,7 @@ named_argument : ssa_id ":" type optional_attr_dict
 argument_list : (named_argument ("," named_argument)*) | (type optional_attr_dict ("," type optional_attr_dict)*)
 argument_assignment : ssa_id "=" ssa_id
 argument_assignment_list_no_parens : argument_assignment ("," argument_assignment)*
-argument_assignment_list_parens : ("(" ")") | ("(" argument_assignment_list_no_parens ")")
+?argument_assignment_list_parens : ("(" ")") | ("(" argument_assignment_list_no_parens ")")
 
 // Return values
 function_result : type optional_attr_dict
@@ -235,9 +245,12 @@ function_result_list_parens : ("(" ")") | ("(" function_result_list_no_parens ")
 // Body
 ?function_body : region
 
+!private: "private"
+?visibility : private? -> optional
+
 // Definition
 module : "module" optional_symbol_ref_id optional_func_mod_attrs region optional_trailing_loc
-function : "func.func" symbol_ref_id "(" optional_arg_list ")" optional_fn_result_list optional_func_mod_attrs optional_fn_body optional_trailing_loc
+function : "func.func" visibility symbol_ref_id "(" optional_arg_list ")" optional_fn_result_list optional_func_mod_attrs optional_fn_body optional_trailing_loc
 generic_module : string_literal "(" optional_arg_list ")" "(" region ")" optional_attr_dict trailing_type optional_trailing_loc
 
 // ----------------------------------------------------------------------
@@ -281,7 +294,7 @@ semi_affine_expr : "(" semi_affine_expr ")"                        -> semi_affin
 ?semi_affine_oprnd : symbol_or_const
                    | "(" semi_affine_expr ")" -> semi_affine_parens
 
-?multi_dim_affine_expr_no_parens : affine_expr ("," affine_expr)*
+?multi_dim_affine_expr_no_parens : affine_expr? ("," affine_expr)*
 ?multi_dim_semi_affine_expr_no_parens : semi_affine_expr ("," semi_affine_expr)*
 multi_dim_affine_expr : "(" multi_dim_affine_expr_no_parens ")"
 multi_dim_semi_affine_expr : "(" multi_dim_semi_affine_expr_no_parens ")"
@@ -304,7 +317,7 @@ affine_map_list : affine_map ("," affine_map)*
 // General structure and top-level definitions
 
 // Definitions of affine maps/integer sets/aliases are at the top of the file
-type_alias_def : type_alias "=" "type" type
+type_alias_def : type_alias "=" type
 affine_map_def      : map_or_set_id "=" affine_map_inline
 semi_affine_map_def : map_or_set_id "=" semi_affine_map_inline
 integer_set_def     : map_or_set_id "=" integer_set_inline

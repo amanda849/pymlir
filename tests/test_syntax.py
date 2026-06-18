@@ -88,7 +88,7 @@ def test_functions(parser: Optional[Parser] = None):
       func.func @myfunc_a() {
         %c:2 = addf %a, %b : f32
       }
-      func.func @myfunc_b() {
+      func.func private @myfunc_b() {
         %d:2 = addf %a, %b : f64
         ^e:
         %f:2 = addf %d, %d : f64
@@ -212,13 +212,13 @@ def test_definitions(parser: Optional[Parser] = None):
   library_call = "external_outerproduct_matmul"
 }
 
-!vector_type_A = type vector<4xf32>
-!vector_type_B = type vector<4xf32>
-!vector_type_C = type vector<4x4xf32>
+!vector_type_A = vector<4xf32>
+!vector_type_B = vector<4xf32>
+!vector_type_C = vector<4x4xf32>
 
-!matrix_type_A = type memref<?x?x!vector_type_A>
-!matrix_type_B = type memref<?x?x!vector_type_B>
-!matrix_type_C = type memref<?x?x!vector_type_C>
+!matrix_type_A = memref<?x?x!vector_type_A>
+!matrix_type_B = memref<?x?x!vector_type_B>
+!matrix_type_C = memref<?x?x!vector_type_C>
     '''
     parser = parser or Parser()
     module = parser.parse(code)
@@ -317,6 +317,16 @@ func.func @integer_test(%a: si16, %b: ui32, %c: i7) {
     module = parser.parse(code)
     print(module.pretty())
 
+def test_float_type(parser: Optional[Parser] = None):
+    code = '''
+func.func @float_test(%a: f16, %b: f8E5M2, %c: f4E2M1FN, %d: f8E4M3B11FNUZ, %e: f8E8M0FNU) {
+  return
+}
+    '''
+    parser = parser or Parser()
+    module = parser.parse(code)
+    print(module.pretty())
+
 
 if __name__ == '__main__':
     p = Parser()
@@ -335,3 +345,4 @@ if __name__ == '__main__':
     test_generic_dialect_llvm(p)
     test_generic_dialect_generic_op(p)
     test_integer_sign(p)
+    test_float_type(p)

@@ -1,7 +1,7 @@
 
 import inspect
 import sys
-from typing import List, Tuple, Optional, Union
+from typing import List, Optional, Union
 from dataclasses import dataclass
 
 import mlir.astnodes as mast
@@ -15,7 +15,6 @@ class CallIndirectOperation(DialectOp):
     func: mast.SymbolRefId
     func_type: mast.FunctionType
     args: Optional[List[SsaUse]] = None
-    argtypes: Optional[List[mast.Type]] = None
     _syntax_ = ['func.call_indirect {func.symbol_ref_id} () : {func_type.function_type}',
                 'func.call_indirect {func.symbol_ref_id} ( {args.ssa_use_list} ) : {func_type.function_type}']
 
@@ -25,8 +24,9 @@ class CallOperation(DialectOp):
     func: mast.SymbolRefId
     func_type: mast.FunctionType
     args: Optional[List[SsaUse]] = None
-    argtypes: Optional[List[mast.Type]] = None
-    _syntax_ = ['func.call {func.symbol_ref_id} () : {func_type.function_type}',
+    _syntax_ = ['call {func.symbol_ref_id} () : {func_type.function_type}',
+                'func.call {func.symbol_ref_id} () : {func_type.function_type}',
+                'call {func.symbol_ref_id} ( {args.ssa_use_list} ) : {func_type.function_type}',
                 'func.call {func.symbol_ref_id} ( {args.ssa_use_list} ) : {func_type.function_type}']
 
 @dataclass
@@ -42,7 +42,9 @@ class ReturnOperation(DialectOp):
     values: Optional[List[SsaUse]] = None
     types: Optional[List[mast.Type]] = None
     _syntax_ = ['return',
-                'return {values.ssa_use_list} : {types.type_list_no_parens}']
+                'func.return',
+                'return {values.ssa_use_list} : {types.type_list_no_parens}',
+                'func.return {values.ssa_use_list} : {types.type_list_no_parens}']
 
     def dump(self, indent: int = 0) -> str:
         output = 'return'

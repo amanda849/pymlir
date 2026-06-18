@@ -1,7 +1,8 @@
 """ Classes containing MLIR AST node types, fields, and conversion back to
     MLIR. """
 
-from enum import Enum, auto
+from __future__ import annotations
+from enum import Enum
 from typing import Any, List, Union, Optional
 from lark import Token
 from lark.tree import Tree
@@ -126,10 +127,80 @@ class FloatTypeEnum(Enum):
 
 @dataclass
 class FloatType(Type):
+    pass
+
+
+@dataclass
+class StandardFloatType(FloatType):
     type: FloatTypeEnum
 
     def dump(self, indent: int = 0) -> str:
         return self.type.name
+
+
+@dataclass
+class CustomFloatType(FloatType):
+    width: int
+    exponent: int
+    mantissa: int
+    bias: int = 0
+    signed: bool = True
+    zero: bool = True
+    infinities: bool = True
+    nans: bool = True
+
+    @classmethod
+    def from_lark(cls, args: list):
+        bias: int = 0
+        signed: bool = True
+        zero: bool = True
+        infinities: bool = True
+        nans: bool = True
+        i = 0
+        while i < len(args):
+            a = args[i]
+            if isinstance(a, Token):
+                if a.value == "f":
+                    i += 1
+                    width = int(args[i])
+                elif a.value == "E":
+                    i += 1
+                    exponent = int(args[i])
+                elif a.value == "M":
+                    i += 1
+                    mantissa = int(args[i])
+                elif a.value == "B":
+                    i += 1
+                    bias = int(args[i])
+                elif a.value == "F":
+                    infinities = False
+                elif a.value == "N":
+                    nans = False
+                elif a.value == "U":
+                    signed = False
+                    zero = False
+                elif a.value == "Z":
+                    zero = True
+                else:
+                    raise ValueError(f"Unknow format specification: {a}")
+            else:
+                raise ValueError(f"Bad argument type: {a}")
+            i += 1
+        return cls(width, exponent, mantissa, bias, signed, zero, infinities, nans)
+
+    
+    def dump(self, indent: int = 0) -> str:
+        suffix = ""
+        if not self.infinities:
+            suffix += "F"
+        if not self.nans:
+            suffix += "N"
+        if not self.signed:
+            suffix += "U"
+            if self.zero:
+                suffix += "Z"
+        bias = "" if self.bias == 0 else f"B{self.bias}"
+        return f"f{self.width}E{self.exponent}M{self.mantissa}{bias}{suffix}"
 
 
 @dataclass
@@ -185,8 +256,8 @@ class TupleType(Type):
 
 @dataclass
 class VectorType(Type):
-    dimensions: int
-    element_type: Union[IntegerType, FloatType]
+    dimensions: List[int]
+    element_type: Union[IntegerType, FloatType, IndexType]
 
     def dump(self, indent: int = 0) -> str:
         return 'vector<%s>' % ('x'.join(
@@ -202,19 +273,27 @@ class TensorType(Type):
 class RankedTensorType(TensorType):
     dimensions: List[Dimension]
     element_type: Union[IntegerType, FloatType, ComplexType, VectorType]
+    attribute: Optional[Attribute] = None
 
     def dump(self, indent: int = 0) -> str:
-        return 'tensor<%s>' % ('x'.join(
+        dims_str = 'x'.join('x'.join(
             t.dump(indent)
             for t in self.dimensions) + 'x' + self.element_type.dump(indent))
+        if self.attribute:
+            dims_str += ', ' + self.attribute.dump(indent)
+        return 'tensor<%s>' % (dims_str)
 
 
 @dataclass
 class UnrankedTensorType(TensorType):
     element_type: Union[IntegerType, FloatType, ComplexType, VectorType]
+    attribute: Optional[Attribute] = None
 
     def dump(self, indent: int = 0) -> str:
-        return 'tensor<*x%s>' % self.element_type.dump(indent)
+        dims_str = '*x%s' % self.element_type.dump(indent)
+        if self.attribute:
+            dims_str += ', ' + self.attribute.dump(indent)
+        return 'tensor<%s>' % (dims_str)
 
 
 class MemRefType(Type):
@@ -274,16 +353,6 @@ class OpaqueDialectType(Type):
 
     def dump(self, indent: int = 0) -> str:
         return '!%s<"%s">' % (self.dialect, self.contents)
-
-@dataclass
-class PrettyDialectType(Type):
-    dialect: str
-    type: str
-    body: List[str]
-
-    def dump(self, indent: int = 0) -> str:
-        return '!%s.%s<%s>' % (self.dialect, self.type, ', '.join(
-            dump_or_value(item, indent) for item in self.body))
 
 
 @dataclass
@@ -352,17 +421,27 @@ class DictionaryAttr(Attribute):
 
 
 @dataclass
+class DenseArrayAttr(Attribute):
+    type: IntegerType | FloatType
+    value: List[bool | int | float]
+
+    def dump(self, indent: int = 0) -> str:
+        return 'array<%s: %s>' % (self.type.dump(indent),
+                                  dump_or_value(self.value, indent))
+
+
+@dataclass
 class ElementsAttr(Attribute):
     pass
 
 
 @dataclass
 class DenseElementsAttr(ElementsAttr):
-    attribute: Attribute
+    attribute: Optional[Attribute]
     type: Union[TensorType, VectorType]
 
     def dump(self, indent: int = 0) -> str:
-        return 'dense<%s> : %s' % (self.attribute.dump(indent),
+        return 'dense<%s> : %s' % (dump_or_value(self.attribute, indent),
                                    self.type.dump(indent))
 
 
@@ -619,7 +698,7 @@ class GenericModule(ModuleType):
     args: List["NamedArgument"]
     region: "Region"
     attributes: Optional[AttributeDict]
-    type: List[Type]
+    type: Type | List[Type]
     location: Optional[Location] = None
 
     def dump(self, indent=0) -> str:
@@ -634,7 +713,10 @@ class GenericModule(ModuleType):
         result += ')'
         if self.attributes:
             result += ' ' + dump_or_value(self.attributes, indent)
-        result += ' : ' + self.type.dump(indent)
+        if isinstance(self.type, list):
+            result += ' : ' + ', '.join(t.dump(indent) for t in self.type)
+        else:
+            result += ' : ' + self.type.dump(indent)
         if self.location:
             result += ' ' + self.location.dump(indent)
         return result
@@ -642,6 +724,7 @@ class GenericModule(ModuleType):
 
 @dataclass
 class Function(Node):
+    visibility: Optional[str]
     name: SymbolRefId
     args: Optional[List["NamedArgument"]]
     result_types: Optional[List[Type]]
@@ -651,6 +734,8 @@ class Function(Node):
 
     def dump(self, indent=0) -> str:
         result = 'func.func'
+        if self.visibility:
+            result += ' %s' % self.visibility
         result += ' %s' % self.name.dump(indent)
         arg_list = self.args if self.args else []
         result += '(%s)' % ', '.join(
@@ -999,6 +1084,8 @@ def _dump_ast_or_value(value: Any, python=True, indent: int = 0) -> str:
             '%s%s%s' %
             (_dump_ast_or_value(k, python), sep, _dump_ast_or_value(v, python))
             for k, v in value.items())
+    if value is None:
+        return ""
     return str(value)
 
 

@@ -7,11 +7,8 @@ from mlir import astnodes
 class TreeToMlir(Transformer):
     ###############################################################
     # Low-level literal syntax
-    digit = lambda self, val: int(val[0])
-    digits = lambda self, val: int(val[0])
-    hex_digit = lambda self, val: str(val[0])
+    digits = lambda self, val: str(val[0])
     hex_digits = lambda self, val: str(val[0])
-    letter = lambda self, val: str(val[0])
     letters = lambda self, val: str(val[0])
     id_punct = lambda self, val: str(val[0])
     underscore = lambda self, val: str(val[0])
@@ -42,6 +39,10 @@ class TreeToMlir(Transformer):
         return ''.join(str(s) for s in elements)
 
     @v_args(inline=True)
+    def alias_id(self, *elements):
+        return ''.join(str(s) for s in elements)
+
+    @v_args(inline=True)
     def suffix_id(self, *suffix):
         return ''.join(str(s) for s in suffix)
 
@@ -59,11 +60,9 @@ class TreeToMlir(Transformer):
     # MLIR Types
 
     none_type = astnodes.NoneType.from_lark
-    F16 = lambda self, tok: astnodes.FloatTypeEnum("f16")
-    BF16 = lambda self, tok: astnodes.FloatTypeEnum("bf16")
-    F32 = lambda self, tok: astnodes.FloatTypeEnum("f32")
-    F64 = lambda self, tok: astnodes.FloatTypeEnum("f64")
-    float_type = lambda self, tok: astnodes.FloatType(astnodes.FloatTypeEnum(tok[0].value))
+    standard_float_type = lambda self, tok: astnodes.StandardFloatType(astnodes.FloatTypeEnum(tok[0].value))
+    custom_float_type = astnodes.CustomFloatType.from_lark
+    float_type = lambda self, tok: tok[0]
     tensor_float_type = astnodes.TensorFloatType.from_lark
     index_type = astnodes.IndexType.from_lark
     signed_integer_type = astnodes.SignedIntegerType.from_lark
@@ -78,7 +77,6 @@ class TreeToMlir(Transformer):
     ranked_memref_type = astnodes.RankedMemRefType.from_lark
     unranked_memref_type = astnodes.UnrankedMemRefType.from_lark
     opaque_dialect_item = astnodes.OpaqueDialectType.from_lark
-    pretty_dialect_item = astnodes.PrettyDialectType.from_lark
     llvm_function_type = astnodes.LlvmFunctionType.from_lark
     function_type = astnodes.FunctionType.from_lark
     strided_layout = astnodes.StridedLayout.from_lark
@@ -88,6 +86,7 @@ class TreeToMlir(Transformer):
 
     array_attribute = astnodes.ArrayAttr
     bool_attribute = astnodes.BoolAttr.from_lark
+    dense_array_attribute = astnodes.DenseArrayAttr.from_lark
     dictionary_attribute = astnodes.DictionaryAttr
     dense_elements_attribute = astnodes.DenseElementsAttr.from_lark
     opaque_elements_attribute = astnodes.OpaqueElementsAttr.from_lark
@@ -126,6 +125,7 @@ class TreeToMlir(Transformer):
     block = astnodes.Block.from_lark
     region = astnodes.Region
     module = astnodes.Module.from_lark
+    private = lambda self, val: str(val[0])
     function = astnodes.Function.from_lark
     generic_module = astnodes.GenericModule.from_lark
     named_argument = astnodes.NamedArgument.from_lark
@@ -190,7 +190,7 @@ class TreeToMlir(Transformer):
     stride_list = list
     dimension_list_ranked = list
     static_dimension_list = list
-    pretty_dialect_item_body = list
+    opaque_dialect_item_body = list
     type_list_no_parens = list
     affine_constraint_conjunction = list
     function_result_list_no_parens = list
@@ -203,6 +203,7 @@ class TreeToMlir(Transformer):
     operation_list = list
     argument_list = list
     argument_assignment_list_no_parens = list
+    argument_assignment_list_parens = lambda self, value: (value[0] if value else [])
     definition_list = list
     function_list = list
     module_list = list
@@ -216,6 +217,8 @@ class TreeToMlir(Transformer):
     bool_literal = lambda self, value: value[0]
     integer_literal = lambda self, value: value[0]
     constant_literal = lambda self, value: value[0]
+    constant_literal_list = list
+    tensor_literal = lambda self, value: value[0]
     dimension_list = lambda self, value: value[0]
     ssa_use = lambda self, value: value[0]
     integer_type = lambda self, value: value[0]
@@ -223,6 +226,7 @@ class TreeToMlir(Transformer):
     tensor_memref_element_type = lambda self, value: value[0]
     tensor_type = lambda self, value: value[0]
     memref_type = lambda self, value: value[0]
+    standard_non_function_type = lambda self, value: value[0]
     standard_type = lambda self, value: value[0]
     dialect_type = lambda self, value: value[0]
     non_function_type = lambda self, value: value[0]

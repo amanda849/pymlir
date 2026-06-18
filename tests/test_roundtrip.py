@@ -76,7 +76,16 @@ def test_loop_dialect_roundtrip():
       %C_elem = load %C [ %i0 ] : memref<?xf32>
       %sum_elem = addf %B_elem , %C_elem : f32
       store %sum_elem , %result [ %i0 ] : memref<?xf32>
-    }
+    } 
+    return
+  }
+}"""
+    assert parse_string(src).dump() == src
+
+
+def test_id_roundtrip():
+    src = """module {
+  func.func @a0b00c000d10e01() {
     return
   }
 }"""
@@ -87,3 +96,4 @@ if __name__ == '__main__':
     test_toy_roundtrip()
     test_affine_expr_roundtrip()
     test_loop_dialect_roundtrip()
+    test_id_roundtrip()

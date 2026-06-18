@@ -88,9 +88,9 @@ class IRBuilder:
 
     name_gen = UniqueNameGenerator(forced_prefix="_pymlir_")
 
-    F16 = mast.FloatType(type=mast.FloatTypeEnum.f16)
-    F32 = mast.FloatType(type=mast.FloatTypeEnum.f32)
-    F64 = mast.FloatType(type=mast.FloatTypeEnum.f64)
+    F16 = mast.StandardFloatType(type=mast.FloatTypeEnum.f16)
+    F32 = mast.StandardFloatType(type=mast.FloatTypeEnum.f32)
+    F64 = mast.StandardFloatType(type=mast.FloatTypeEnum.f64)
     INT32 = mast.IntegerType(32)
     INT64 = mast.IntegerType(64)
     INDEX = mast.IndexType()
@@ -143,7 +143,7 @@ class IRBuilder:
         if name is None:
             name = self.name_gen("fn")
 
-        op = mast.Function(mast.SymbolRefId(value=name), [], [], None,
+        op = mast.Function(None, mast.SymbolRefId(value=name), [], [], None,
                            mast.Region([]))
 
         self._insert_op_in_block([], op)
